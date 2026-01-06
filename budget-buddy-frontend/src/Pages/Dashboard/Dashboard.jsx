@@ -15,7 +15,7 @@ import {
   Cell,
 } from "recharts";
 import { FiTrendingUp, FiTrendingDown, FiDollarSign } from "react-icons/fi";
-import "./dashboard.css";
+import "./Dashboard.css";
 
 const COLORS = ["#2563eb", "#22c55e", "#f97316", "#ef4444"];
 
