@@ -1,11 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8081/api",
-  // withCredentials: true,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  // withCredentials: true, // enable only if using cookies
 });
 
-// Interceptor to attach token
+// Attach JWT token automatically
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -16,7 +16,5 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
-
 
 export default api;
