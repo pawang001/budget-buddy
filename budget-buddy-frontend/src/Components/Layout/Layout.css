@@ -1,0 +1,29 @@
+/* =========================
+   APP LAYOUT
+========================= */
+
+.app-layout {
+  min-height: 100vh;
+  background: var(--color-bg);
+  transition: background-color 0.35s ease;
+}
+
+.app-content {
+  padding: 32px;
+}
+
+/* =========================
+   RESPONSIVE CONTENT
+========================= */
+
+@media (max-width: 1024px) {
+  .app-content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-content {
+    padding: 16px;
+  }
+}

@@ -1,0 +1,304 @@
+.transactions-page {
+  padding: 18px;
+  color: var(--color-text);
+}
+
+/* HEADER */
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btn.danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+/* FILTER BAR */
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  padding: 8px 10px;
+  border-radius: 10px;
+  flex: 1;
+}
+
+.search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+}
+
+.controls select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+/* DARK MODE CONTROLS TEXT */
+[data-theme="dark"] .controls select {
+  color: #ffffff;
+  background: var(--color-bg-secondary);
+}
+
+[data-theme="dark"] .controls option {
+  color: #000000; /* dropdown list readability */
+}
+
+/* TABLE */
+.table-wrapper {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.tx-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tx-table th,
+.tx-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.tx-table th {
+  color: var(--color-muted);
+  font-size: 13px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tx-table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.tx-table tbody tr.selected {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+/* DEFAULT: center all table cells */
+.tx-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tx-table td:nth-child(2) {
+  text-align: left;
+}
+
+/* CHECKBOX CENTERING */
+.tx-table input[type="checkbox"] {
+  display: block;
+  margin: 0 auto;
+}
+
+/* AMOUNT COLORS */
+.income {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.expense {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* PILLS */
+.pill {
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ICONS */
+.icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-muted);
+  margin-left: 6px;
+}
+
+.icon.danger {
+  color: var(--color-danger);
+}
+
+/* PAGINATION */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.page-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.page-controls button {
+  min-width: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+}
+
+.page-controls button.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* EMPTY */
+.no-data {
+  text-align: center;
+  padding: 18px;
+  color: var(--color-muted);
+}
+
+/* =========================================================
+   DARK MODE – FORCE WHITE TEXT FOR INPUTS & CONTROLS
+   ========================================================= */
+
+/* Search input */
+[data-theme="dark"] .search input {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .search input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .search svg {
+  color: #ffffff;
+}
+
+/* Select controls */
+[data-theme="dark"] .controls select {
+  color: #ffffff;
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+/* Dropdown options (browser limitation → keep dark text) */
+[data-theme="dark"] .controls option {
+  color: #ffffff;
+}
+
+/* Pagination buttons */
+[data-theme="dark"] .page-controls button {
+  color: #ffffff;
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .page-controls button.active {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+/* Pagination text (Showing X–Y of Z) */
+[data-theme="dark"] .pagination span {
+  color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  .tx-table th,
+  .tx-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .transactions-header,
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions {
+    justify-content: space-between;
+  }
+
+  .controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .controls select {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .tx-table {
+    font-size: 12px;
+  }
+
+  .tx-table th,
+  .tx-table td {
+    padding: 8px 6px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .page-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
