@@ -6,6 +6,7 @@ build/
 # Java
 target/
 *.log
+application-local.properties
 
 # Env
 .env
