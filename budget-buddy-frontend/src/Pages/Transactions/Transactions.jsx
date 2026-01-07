@@ -130,16 +130,18 @@ export default function Transactions() {
   };
 
   const onConfirmDelete = async () => {
-    if (deleteTargetId) {
-      await api.delete(`/transactions/delete/${deleteTargetId}`);
+    try {
+      if (deleteTargetId !== null) {
+        await api.delete(`/transactions/delete/${deleteTargetId}`);
+      } else if (selectedIds.length > 0) {
+        await api.post("/transactions/deleteSelected", selectedIds);
+        setSelectedIds([]);
+      }
+    } finally {
       setDeleteTargetId(null);
-    } else {
-      await api.post("/transactions/deleteSelected", selectedIds);
-      setSelectedIds([]);
+      setIsConfirmOpen(false);
+      fetchAll();
     }
-
-    setIsConfirmOpen(false);
-    fetchAll();
   };
 
   return (
