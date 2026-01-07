@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -24,6 +25,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private JwtUtil jwtUtil;
     @Autowired
     private UserRepo userRepo;
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -49,8 +54,11 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // Generate JWT token
         String jwtToken = jwtUtil.generateToken(email);
 
-        // Redirect to frontend with the token (e.g. React app at localhost:5173)
-        String redirectUrl = "http://localhost:5173/login?token=" + URLEncoder.encode(jwtToken, StandardCharsets.UTF_8);
+        String redirectUrl =
+                frontendUrl + "/login?token=" +
+                        URLEncoder.encode(jwtToken, StandardCharsets.UTF_8);
+
         response.sendRedirect(redirectUrl);
+
     }
 }

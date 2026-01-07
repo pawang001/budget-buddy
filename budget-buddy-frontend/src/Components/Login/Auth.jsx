@@ -179,8 +179,8 @@ const Auth = () => {
   };
 
   const handleOAuth = (provider) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    window.location.href = `${baseUrl}/oauth2/authorization/${provider}`;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    window.location.href = `${backendUrl}/oauth2/authorization/${provider}`;
   };
 
   const toggleAuthMode = () => {
