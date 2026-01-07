@@ -8,6 +8,7 @@ import com.budget_buddy.model.User;
 import com.budget_buddy.repo.TransactionRepo;
 import com.budget_buddy.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,8 +31,11 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Autowired
     private UserRepo userRepo;
 
-    // Formatter for the monthly chart (e.g., "Oct")
-    private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MMM");
+    @Value("${spring.profiles.active:local}")
+    private String activeProfile;
+
+    private static final DateTimeFormatter MONTH_FORMATTER =
+            DateTimeFormatter.ofPattern("MMM");
 
     @Override
     public StatsResponse getStats(String from, String to) {
@@ -54,19 +58,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         LocalDateTime start = startDate.atStartOfDay();
         LocalDateTime end = endDate.atTime(23, 59, 59);
 
-        // For monthly chart (last 6 months ending at "end")
-        LocalDateTime sixMonthsAgo = end.minusMonths(5).withDayOfMonth(1);
+        LocalDateTime sixMonthsAgo =
+                end.minusMonths(5).withDayOfMonth(1);
 
         // ===== TOTALS =====
         double totalIncome = 0;
         double totalExpense = 0;
 
-        List<Object[]> totals =
+        for (Object[] row :
                 transactionRepo.findTransactionTotalsByUserAndDateRange(
-                        user, start, end
-                );
+                        user, start, end)) {
 
-        for (Object[] row : totals) {
             TransactionType type = (TransactionType) row[0];
             double sum = ((Number) row[1]).doubleValue();
 
@@ -76,21 +78,21 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         double balance = totalIncome - totalExpense;
 
-        // ===== CATEGORY BREAKDOWN =====
-        Map<String, Double> categoryBreakdown =
+        // ===== CATEGORY =====
+        Map<String, Double> categorySummary =
                 transactionRepo.findCategoryBreakdownByUserAndDateRange(
-                                user, start, end
-                        ).stream()
+                                user, start, end)
+                        .stream()
                         .collect(Collectors.toMap(
                                 r -> (String) r[0],
                                 r -> ((Number) r[1]).doubleValue()
                         ));
 
-        // ===== RECENT TRANSACTIONS =====
-        List<TransactionDto> recentTransactions =
+        // ===== RECENT =====
+        List<TransactionDto> recent =
                 transactionRepo.findByUserOrderByDateTimeDesc(
-                                user, PageRequest.of(0, 5)
-                        ).stream()
+                                user, PageRequest.of(0, 5))
+                        .stream()
                         .map(tx -> new TransactionDto(
                                 tx.getId(),
                                 tx.getTitle(),
@@ -101,30 +103,30 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                         ))
                         .toList();
 
-        // ===== MONTHLY CHART =====
-        List<MonthlySummary> monthly =
-                transactionRepo.findMonthlySummaries(
-                                user.getId(), sixMonthsAgo
-                        ).stream()
-                        .map(r -> {
-                            String month = YearMonth
-                                    .parse((String) r[0])
-                                    .format(MONTH_FORMATTER);
+        // ===== MONTHLY (DB AWARE) =====
+        List<Object[]> rawMonthly =
+                "local".equals(activeProfile)
+                        ? transactionRepo.findMonthlySummariesMySql(
+                        user.getId(), sixMonthsAgo)
+                        : transactionRepo.findMonthlySummariesPostgres(
+                        user.getId(), sixMonthsAgo);
 
-                            return new MonthlySummary(
-                                    month,
-                                    ((Number) r[1]).doubleValue(),
-                                    ((Number) r[2]).doubleValue()
-                            );
-                        })
+        List<MonthlySummary> monthly =
+                rawMonthly.stream()
+                        .map(r -> new MonthlySummary(
+                                YearMonth.parse((String) r[0])
+                                        .format(MONTH_FORMATTER),
+                                r[1] != null ? ((Number) r[1]).doubleValue() : 0,
+                                r[2] != null ? ((Number) r[2]).doubleValue() : 0
+                        ))
                         .toList();
 
         return new StatsResponse(
                 totalIncome,
                 totalExpense,
                 balance,
-                categoryBreakdown,
-                recentTransactions,
+                categorySummary,
+                recent,
                 monthly,
                 LocalDateTime.now()
         );

@@ -14,41 +14,69 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByUser(User user);
 
-    // 1. Get total income/expense for a date range
-    @Query("SELECT tx.type, SUM(tx.amount) " +
-            "FROM Transaction tx " +
-            "WHERE tx.user = :user AND tx.dateTime BETWEEN :start AND :end " +
-            "GROUP BY tx.type")
+    // ===== TOTAL INCOME / EXPENSE =====
+    @Query("""
+        SELECT tx.type, SUM(tx.amount)
+        FROM Transaction tx
+        WHERE tx.user = :user
+          AND tx.dateTime BETWEEN :start AND :end
+        GROUP BY tx.type
+    """)
     List<Object[]> findTransactionTotalsByUserAndDateRange(
             @Param("user") User user,
             @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
+            @Param("end") LocalDateTime end
+    );
 
-    // 2. Get category breakdown for expenses in a date range
-    @Query("SELECT tx.category, SUM(tx.amount) " +
-            "FROM Transaction tx " +
-            "WHERE tx.user = :user AND tx.type = 'EXPENSE' AND tx.dateTime BETWEEN :start AND :end " +
-            "GROUP BY tx.category")
+    // ===== CATEGORY BREAKDOWN =====
+    @Query("""
+        SELECT tx.category, SUM(tx.amount)
+        FROM Transaction tx
+        WHERE tx.user = :user
+          AND tx.type = 'EXPENSE'
+          AND tx.dateTime BETWEEN :start AND :end
+        GROUP BY tx.category
+    """)
     List<Object[]> findCategoryBreakdownByUserAndDateRange(
             @Param("user") User user,
             @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end);
+            @Param("end") LocalDateTime end
+    );
 
-    // 3. Get the 5 most recent transactions
-    // We use Pageable to limit the results to 5
+    // ===== RECENT TRANSACTIONS =====
     List<Transaction> findByUserOrderByDateTimeDesc(User user, Pageable pageable);
 
-    // 4. Get monthly summaries for the last 6 months (for the chart)
-    @Query(value = "SELECT " +
-            "  DATE_FORMAT(t.date_time, '%Y-%m') AS monthYear, " +
-            "  SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE 0 END) AS monthlyIncome, " +
-            "  SUM(CASE WHEN t.type = 'EXPENSE' THEN t.amount ELSE 0 END) AS monthlyExpense " +
-            "FROM transaction t " +
-            "WHERE t.user_id = :userId AND t.date_time >= :startDate " +
-            "GROUP BY DATE_FORMAT(t.date_time, '%Y-%m') " +
-            "ORDER BY monthYear ASC",
-            nativeQuery = true)
-    List<Object[]> findMonthlySummaries(
+    // ===== MYSQL (LOCAL) =====
+    @Query(value = """
+        SELECT
+          DATE_FORMAT(t.date_time, '%Y-%m') AS monthYear,
+          SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE 0 END) AS income,
+          SUM(CASE WHEN t.type = 'EXPENSE' THEN t.amount ELSE 0 END) AS expense
+        FROM transaction t
+        WHERE t.user_id = :userId
+          AND t.date_time >= :startDate
+        GROUP BY DATE_FORMAT(t.date_time, '%Y-%m')
+        ORDER BY monthYear
+    """, nativeQuery = true)
+    List<Object[]> findMonthlySummariesMySql(
             @Param("userId") Long userId,
-            @Param("startDate") LocalDateTime startDate);
+            @Param("startDate") LocalDateTime startDate
+    );
+
+    // ===== POSTGRESQL (PROD) =====
+    @Query(value = """
+        SELECT
+          to_char(date_trunc('month', t.date_time), 'YYYY-MM') AS monthYear,
+          SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE 0 END) AS income,
+          SUM(CASE WHEN t.type = 'EXPENSE' THEN t.amount ELSE 0 END) AS expense
+        FROM transaction t
+        WHERE t.user_id = :userId
+          AND t.date_time >= :startDate
+        GROUP BY date_trunc('month', t.date_time)
+        ORDER BY monthYear
+    """, nativeQuery = true)
+    List<Object[]> findMonthlySummariesPostgres(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDateTime startDate
+    );
 }
