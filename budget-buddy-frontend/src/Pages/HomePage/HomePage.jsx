@@ -40,7 +40,7 @@ const HomePage = () => {
         </div>
 
         <div className="hero-image">
-          <img src="public/images/dashboard.png" alt="Dashboard Preview" />
+          <img src="/images/dashboard.png" alt="Dashboard Preview" />
         </div>
       </section>
 
@@ -111,7 +111,7 @@ const HomePage = () => {
         </div>
 
         <div className="preview-image">
-          <img src="public/images/transaction.png" alt="Transactions Preview" />
+          <img src="/images/transaction.png" alt="Transactions Preview" />
         </div>
       </section>
 
